@@ -1,10 +1,9 @@
 import pygame
 import math
 from queue import PriorityQueue
-from dropdown import DropDown
 
 WIDTH = 800
-HEIGHT = 1000
+HEIGHT = 900
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("A* Path Finding Algorithm")
 
@@ -40,6 +39,9 @@ class Spot:
 
 	def is_closed(self):
 		return self.color == RED
+
+	def is_path(self):
+		return self.color == PURPLE
 
 	def is_open(self):
 		return self.color == GREEN
@@ -159,12 +161,14 @@ def algorithm(draw, grid, start, end):
 	return False
 
 
-def make_grid(rows, width):
+def make_grid(rows, width, height):
 	grid = []
 	gap = width // rows
+	height_row = height // gap
+
 	for i in range(rows):
 		grid.append([])
-		for j in range(rows):
+		for j in range(height_row + 1):
 			spot = Spot(i, j, gap, rows)
 			grid[i].append(spot)
 
@@ -202,15 +206,29 @@ def get_clicked_pos(pos, rows, width):
 
 def main(win, width):
 	ROWS = 50
-	grid = make_grid(ROWS, width)
+	grid = make_grid(ROWS, width, HEIGHT)
+
+	select_barrier_spot = grid[30][51]
+	select_astar_spot = grid[5][51]
+	select_qlearning_spot = grid[5][53]
+
+	select_barrier_spot.make_barrier()
+	select_astar_spot.make_path()
+	select_qlearning_spot.make_closed()
 
 	start = None
 	end = None
 
 	run = True
+
+	barrier_select = False
+	astar_select = False
+	qlearning_select = False
+
 	while run:
 		draw(win, grid, ROWS, width)
 		event_list = pygame.event.get()
+
 
 		for event in event_list:
 			if event.type == pygame.QUIT:
@@ -218,19 +236,29 @@ def main(win, width):
 
 			if pygame.mouse.get_pressed()[0]: # LEFT
 				pos = pygame.mouse.get_pos()
-				row, col = get_clicked_pos(pos, ROWS, width)
-				spot = grid[row][col]
-				if not start and spot != end:
-					start = spot
-					start.make_start()
+				if pos[1] > WIDTH:
+					row, col = get_clicked_pos(pos, ROWS, width)
+					spot = grid[row][col]
 
-				elif not end and spot != start:
-					end = spot
-					end.make_end()
+					barrier_select = spot.is_barrier()
+					astar_select = spot.is_path()
+					qlearning_select = spot.is_closed()
 
-				elif spot != end and spot != start:
-					spot.make_barrier()
+				else:
+					row, col = get_clicked_pos(pos, ROWS, width)
+					spot = grid[row][col]
 
+					if astar_select:
+						if not end and spot != start:
+							end = spot
+							end.make_end()
+
+						elif not start and spot != end:
+							start = spot
+							start.make_start()
+
+					if barrier_select:
+						spot.make_barrier()
 
 
 			elif pygame.mouse.get_pressed()[2]: # RIGHT
@@ -258,43 +286,4 @@ def main(win, width):
 
 	pygame.quit()
 
-def testing(win, width):
-	pygame.init()
-	clock = pygame.time.Clock()
-	screen = pygame.display.set_mode((640, 480))
-
-	COLOR_INACTIVE = (100, 80, 255)
-	COLOR_ACTIVE = (100, 200, 255)
-	COLOR_LIST_INACTIVE = (255, 100, 100)
-	COLOR_LIST_ACTIVE = (255, 150, 150)
-
-	list1 = DropDown(
-	    [COLOR_INACTIVE, COLOR_ACTIVE],
-	    [COLOR_LIST_INACTIVE, COLOR_LIST_ACTIVE],
-	    50, 50, 200, 50,
-	    pygame.font.SysFont(None, 30),
-	    "Select Mode", ["Calibration", "Test"])
-
-	run = True
-	while run:
-	    clock.tick(30)
-
-	    event_list = pygame.event.get()
-	    for event in event_list:
-	        if event.type == pygame.QUIT:
-	            run = False
-
-	    selected_option = list1.update(event_list)
-	    if selected_option >= 0:
-	        list1.main = list1.options[selected_option]
-
-	    screen.fill((255, 255, 255))
-	    list1.draw(screen)
-	    pygame.display.flip()
-
-	pygame.quit()
-	exit()
-
-
-#testing(WIN, WIDTH)
 main(WIN, WIDTH)
