@@ -102,10 +102,14 @@ def h(p1, p2):
 
 
 def reconstruct_path(came_from, current, draw):
+	last = None
 	while current in came_from:
+		if last:
+			last.reset()
 		current = came_from[current]
 		current.make_path()
 		draw()
+		last = current
 
 
 def algorithm(draw, grid, start, end):
@@ -144,12 +148,13 @@ def algorithm(draw, grid, start, end):
 					count += 1
 					open_set.put((f_score[neighbor], count, neighbor))
 					open_set_hash.add(neighbor)
-					neighbor.make_open()
+					# neighbor.make_open()
 
 		draw()
 
 		if current != start:
-			current.make_closed()
+			pass
+			#current.make_closed()
 
 	return False
 
