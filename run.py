@@ -302,8 +302,11 @@ def main(win, width):
 
 def draw_ql_path(draw, grid, shortest_path, win):
 	last = None
-	for point in shortest_path:
-		if last:
+	for i in range(len(shortest_path)):
+		if i == 0:
+			continue
+		point = shortest_path[i]
+		if last and i > 1:
 			last.reset()
 			spot.draw(win)
 		row = point[0]
