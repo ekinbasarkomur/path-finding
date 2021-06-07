@@ -3,8 +3,9 @@ import math
 from queue import PriorityQueue
 from dropdown import DropDown
 
-WIDTH = 1000
-WIN = pygame.display.set_mode((WIDTH, WIDTH))
+WIDTH = 800
+HEIGHT = 1000
+WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("A* Path Finding Algorithm")
 
 RED = (255, 0, 0)
@@ -17,6 +18,11 @@ PURPLE = (128, 0, 128)
 ORANGE = (255, 165 ,0)
 GREY = (128, 128, 128)
 TURQUOISE = (64, 224, 208)
+
+COLOR_INACTIVE = (100, 80, 255)
+COLOR_ACTIVE = (100, 200, 255)
+COLOR_LIST_INACTIVE = (255, 100, 100)
+COLOR_LIST_ACTIVE = (255, 150, 150)
 
 class Spot:
 	def __init__(self, row, col, width, total_rows):
@@ -199,7 +205,9 @@ def main(win, width):
 	run = True
 	while run:
 		draw(win, grid, ROWS, width)
-		for event in pygame.event.get():
+		event_list = pygame.event.get()
+
+		for event in event_list:
 			if event.type == pygame.QUIT:
 				run = False
 
@@ -217,6 +225,8 @@ def main(win, width):
 
 				elif spot != end and spot != start:
 					spot.make_barrier()
+
+
 
 			elif pygame.mouse.get_pressed()[2]: # RIGHT
 				pos = pygame.mouse.get_pos()
@@ -281,5 +291,5 @@ def testing(win, width):
 	exit()
 
 
-testing(WIN, WIDTH)
-#main(WIN, WIDTH)
+#testing(WIN, WIDTH)
+main(WIN, WIDTH)
