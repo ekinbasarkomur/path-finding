@@ -12,6 +12,12 @@ class Qlearning:
         self.grid = grid
         self.path = []
 
+    def update(self):
+        if len(self.path) > 1:
+            self.path[0].reset()
+            self.path.pop(0)
+            self.path[0].make_path()
+
     def ql(self, end):
         environment_rows = 20
         environment_columns = 20
@@ -132,6 +138,7 @@ class Qlearning:
                     if i > 1000000:
                         print("Couldn't find shortest path")
                         return []
+                self.path.append(shortest_path)
                 return shortest_path
 
         # define a function that determines if the specified location is a terminal state
