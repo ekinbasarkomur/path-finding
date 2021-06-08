@@ -6,6 +6,11 @@ import time
 from AGV import Qlearning, Astar
 from Spot import Spot
 
+class Robot:
+	def __init__(self, x, y):
+		self.x = x
+		self.y = y
+
 WIDTH = 800
 HEIGHT = 900
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -77,14 +82,15 @@ def main(win, width):
 	ROWS = 20
 	grid = make_grid(ROWS, width, HEIGHT)
 
-	select_barrier_spot = grid[12][20]
-	select_astar_spot = grid[5][20]
-	select_qlearning_spot = grid[10][20]
 
-	a_robot  = Astar(grid)
-	qlearning = Qlearning(grid)
+	select_astar_spot = grid[4][21]
+	select_qlearning_spot = grid[8][21]
+	select_target_spot = grid[12][21]
 
-	select_barrier_spot.make_barrier()
+	q_robots = []
+	a_robots = []
+
+	select_target_spot.make_end()
 	select_astar_spot.make_path()
 	select_qlearning_spot.make_closed()
 
@@ -93,9 +99,10 @@ def main(win, width):
 
 	run = True
 
-	barrier_select = False
+	target_select = False
 	astar_select = False
 	qlearning_select = False
+
 	bariers = [(6, 14), (7, 14), (8, 14), (9, 14),
 					(10, 14), (11, 14), (12, 14), (13, 14),
 					(6, 4), (6, 5), (6, 6), (6, 7), (6, 8),
@@ -131,51 +138,42 @@ def main(win, width):
 					row, col = get_clicked_pos(pos, ROWS, width)
 					spot = grid[row][col]
 
-					if spot.is_barrier():
-						barrier_select = True
-					else:
-						astar_select = spot.is_path()
-						qlearning_select = spot.is_closed()
-						barrier_select = spot.is_barrier()
+					astar_select = spot.is_path()
+					qlearning_select = spot.is_closed()
+					target_select = spot.is_end()
 
 				else:
 					row, col = get_clicked_pos(pos, ROWS, width)
 					spot = grid[row][col]
 
-					if barrier_select:
-						spot.make_barrier()
+					if qlearning_select and spot.row < 20:
+						if not spot.is_closed():
+							spot.make_closed()
+							q_robot = Qlearning(grid, spot)
+							q_robots.append(q_robot)
+					elif astar_select and spot.row < 20:
+						if not spot.is_path():
+							spot.make_path()
+							a_robot = Astar(grid, spot)
+							a_robots.append(a_robot)
+					elif target_select and spot.row < 20:
+						spot.make_end()
+						target = spot
 
-					else:
-						if not end and spot != start:
-							end = spot
-							end.make_end()
-						elif not start and spot != end:
-							start = spot
-							start.make_start()
-
-
-			elif pygame.mouse.get_pressed()[2]: # RIGHT
-				pos = pygame.mouse.get_pos()
-				row, col = get_clicked_pos(pos, ROWS, width)
-				spot = grid[row][col]
-				spot.reset()
-				if spot == start:
-					start = None
-				elif spot == end:
-					end = None
 
 			if event.type == pygame.KEYDOWN:
-				if event.key == pygame.K_SPACE and start and end:
+				if event.key == pygame.K_SPACE:
 					for row in grid:
 						for spot in row:
 							spot.update_neighbors(grid)
-					print("qlearning_select %s" % qlearning_select)
-					print("astar_select %s" % astar_select)
-					if qlearning_select:
-						get_shortest_path = qlearning.ql(end)
-						shortest_path = get_shortest_path(start.row, start.col)
-					elif astar_select:
-						a_robot.algorithm(lambda: draw(win, grid, ROWS, width), start, end)
+							if spot.is_end() and spot.col < 20:
+								for robot in q_robots:
+									get_shortest_path = robot.ql(spot)
+									shortest_path = get_shortest_path(robot.spot.x, robot.spot.y)
+								for robot in a_robots:
+									robot.algorithm(lambda: draw(win, grid, ROWS, width), spot, robot.spot)
+									#import pdb; pdb.set_trace()
+									#print(len(robot.path))
 
 				if event.key == pygame.K_c:
 					start = None
@@ -183,8 +181,11 @@ def main(win, width):
 					grid = make_grid(ROWS, width)
 
 		time.sleep(0.01)
-		qlearning.update()
-		a_robot.update()
+		for robot in a_robots:
+			robot.update()
+		for robot in q_robots:
+			robot.update()
+
 
 	pygame.quit()
 

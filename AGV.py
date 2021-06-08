@@ -10,15 +10,16 @@ def qlearning_train():
     pass
 
 class Qlearning:
-    def __init__(self, grid):
+    def __init__(self, grid, spot):
         self.grid = grid
+        self.spot = spot
         self.path = []
 
     def update(self):
         if len(self.path) > 1:
             self.path[0].reset()
             self.path.pop(0)
-            self.path[0].make_path()
+            self.path[0].make_closed()
 
     def ql(self, end):
         environment_rows = 20
@@ -187,12 +188,14 @@ class Qlearning:
 
 
 class Astar:
-    def __init__(self, grid):
+    def __init__(self, grid, spot):
         self.grid = grid
+        self.spot = spot
         self.path = []
         self.busy = False
 
     def update(self):
+        #print(len(self.path))
         if len(self.path) > 1:
             self.path[0].reset()
             self.path.pop(0)
@@ -240,7 +243,7 @@ class Astar:
             if current == end:
                 #import pdb; pdb.set_trace()
                 self.reconstruct_path(came_from, end)
-                end.make_end()
+                end.reset()
                 return True
 
             for neighbor in current.neighbors:
