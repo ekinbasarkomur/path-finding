@@ -3,7 +3,7 @@ import math
 from queue import PriorityQueue
 import numpy as np
 import time
-from AVG import Qlearning, Astar
+from AGV import Qlearning, Astar
 from Spot import Spot
 
 WIDTH = 800
