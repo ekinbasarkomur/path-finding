@@ -4,6 +4,8 @@ from queue import PriorityQueue
 import numpy as np
 import time
 
+WHITE = (255, 255, 255)
+
 def qlearning_train():
     pass
 
@@ -179,7 +181,7 @@ class Qlearning:
         print('Training complete!')
         return get_shortest_path
 
-        
+
 
 class Astar:
     def __init__(self, grid):
