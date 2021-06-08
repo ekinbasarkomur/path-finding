@@ -128,6 +128,7 @@ class Qlearning:
                     current_row_index, current_column_index = get_next_location(
                         current_row_index, current_column_index, action_index)
                     shortest_path.append([current_row_index, current_column_index])
+                    i += 1
                     if i > 1000000:
                         print("Couldn't find shortest path")
                         return []
@@ -194,14 +195,13 @@ class Astar:
         return abs(x1 - x2) + abs(y1 - y2)
 
 
-    def reconstruct_path(self, came_from, current, draw):
+    def reconstruct_path(self, came_from, current):
         last = None
         while current in came_from:
             if last:
                 last.reset()
             current = came_from[current]
-            current.make_path()
-            draw()
+            self.path.append(current)
             last = current
 
 
@@ -226,8 +226,9 @@ class Astar:
             open_set_hash.remove(current)
 
             if current == end:
-                for spot in came_from:
-                    self.path.append(spot)
+                #import pdb; pdb.set_trace()
+                self.reconstruct_path(came_from, end)
+                end.make_end()
                 return True
 
             for neighbor in current.neighbors:

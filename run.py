@@ -254,8 +254,6 @@ def main(win, width):
 					elif astar_select:
 						a_robot.algorithm(lambda: draw(win, grid, ROWS, width), start, end)
 
-
-
 				if event.key == pygame.K_c:
 					start = None
 					end = None
@@ -282,38 +280,6 @@ def draw_ql_path(draw, grid, shortest_path, win):
 		spot.draw(win)
 		last = spot
 		draw()
-
-def get_poss_next_states(spot, F, ns):
-	poss_next_states = []
-	for i in range(spot.row, ns):
-		for j in range(ns):
-			if F[i][j].score > -100:
-				poss_next_states.append(F[spot.row][j])
-	return poss_next_states
-
-def get_rnd_next_state(s, F, ns):
-	poss_next_states = get_poss_next_states(s, F, ns)
-	next_state = poss_next_states[np.random.randint(0,len(poss_next_states))]
-	return next_state
-
-def train(F, Q, gamma, lrn_rate, max_epochs, start, end):
-	for i in range(0,max_epochs):
-		curr_s = start
-		while(True):
-			next_s = get_rnd_next_state(curr_s, F, len(F))
-			poss_next_next_states = get_poss_next_states(next_s, F, len(F))
-			max_Q = -9999.99
-			for j in range(len(poss_next_next_states)):
-				nn_s = poss_next_next_states[j]
-				q = Q[next_s.row][nn_s.row]
-				if q > max_Q:
-					max_Q = q
-			Q[curr_s.row][next_s.row] = ((1 - lrn_rate) * Q[curr_s.row] \
-				[next_s.row]) + (lrn_rate * (F[curr_s.row][next_s.row].score + \
-				(gamma * max_Q)))
-			curr_s = next_s
-			print("Row %d Col %d " % (curr_s.row, curr_s.col))
-			if curr_s == end: break
 
 
 main(WIN, WIDTH)
