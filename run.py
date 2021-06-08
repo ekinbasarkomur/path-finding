@@ -211,14 +211,14 @@ def get_clicked_pos(pos, rows, width):
 
 
 def main(win, width):
-	ROWS = 50
+	ROWS = 20
 	grid = make_grid(ROWS, width, HEIGHT)
 
-	select_barrier_spot = grid[30][51]
-	select_astar_spot = grid[5][51]
-	select_qlearning_spot = grid[5][53]
+	#select_barrier_spot = grid[5][20]
+	select_astar_spot = grid[5][20]
+	select_qlearning_spot = grid[10][20]
 
-	select_barrier_spot.make_barrier()
+	#select_barrier_spot.make_barrier()
 	select_astar_spot.make_path()
 	select_qlearning_spot.make_closed()
 
@@ -245,6 +245,8 @@ def main(win, width):
 				if pos[1] > WIDTH:
 					row, col = get_clicked_pos(pos, ROWS, width)
 					spot = grid[row][col]
+					print(row)
+					print(col)
 					if spot.is_barrier():
 						barrier_select = True
 					else:
@@ -289,9 +291,9 @@ def main(win, width):
 						print("shortest_path")
 						print(shortest_path)
 						draw_ql_path(lambda: draw(win, grid, ROWS, width), grid, shortest_path, win)
-					elif astar_select:	
+					elif astar_select:
 						algorithm(lambda: draw(win, grid, ROWS, width), grid, start, end)
-						
+
 
 				if event.key == pygame.K_c:
 					start = None
@@ -319,9 +321,9 @@ def draw_ql_path(draw, grid, shortest_path, win):
 
 def get_poss_next_states(spot, F, ns):
 	poss_next_states = []
-	for i in range(spot.row, ns):																						
+	for i in range(spot.row, ns):
 		for j in range(ns):
-			if F[i][j].score > -100: 
+			if F[i][j].score > -100:
 				poss_next_states.append(F[spot.row][j])
 	return poss_next_states
 
@@ -350,9 +352,9 @@ def train(F, Q, gamma, lrn_rate, max_epochs, start, end):
 			if curr_s == end: break
 
 def ql(grid, start):
-	
-	environment_rows = 50
-	environment_columns = 50
+
+	environment_rows = 20
+	environment_columns = 20
 
 	# Create a 3D numpy array to hold the current Q-values for each state and action pair: Q(s, a)
 	# The array contains 11 rows and 11 columns (to match the shape of the environment), as well as a third "action" dimension.
@@ -368,19 +370,19 @@ def ql(grid, start):
 	# Create a 2D numpy array to hold the rewards for each state.
 	# The array contains 11 rows and 11 columns (to match the shape of the environment), and each value is initialized to -100.
 	rewards = np.full((environment_rows, environment_columns), -1.)
-	for i in range(50):
+	for i in range(20):
 		row = grid[i]
-		for j in range(50):
+		for j in range(20):
 			spot = row[j]
 			if spot.score == -100 or spot.score == 100:
 				rewards[spot.row, spot.col] = spot.score
 
 	# define aisle locations (i.e., white squares) for rows 1 through 9
 	aisles = {}  # store locations in a dictionary
-	for i in range(50):
+	for i in range(20):
 		row = grid[i]
 		aisles[i] = []
-		for j in range(50):
+		for j in range(20):
 			spot = row[j]
 			if spot.score == -1:
 				aisles[i].append(spot.col)
@@ -394,7 +396,7 @@ def ql(grid, start):
 	for row in rewards:
 		print(row)
 
-	
+
 	def is_terminal_state(current_row_index, current_column_index):
 		# if the reward for this location is -1, then it is not a terminal state (i.e., it is a 'white square')
 		if rewards[current_row_index, current_column_index] == -1.:
