@@ -140,7 +140,10 @@ class Qlearning:
                     if i > 1000000:
                         print("Couldn't find shortest path")
                         return []
-                self.path.append(shortest_path)
+
+                for point in shortest_path:
+                    spot = self.grid[point[0]][point[1]]
+                    self.path.append(spot)
                 return shortest_path
 
         # define a function that determines if the specified location is a terminal state

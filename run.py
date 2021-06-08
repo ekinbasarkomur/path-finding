@@ -82,6 +82,7 @@ def main(win, width):
 	select_qlearning_spot = grid[10][20]
 
 	a_robot  = Astar(grid)
+	qlearning = Qlearning(grid)
 
 	select_barrier_spot.make_barrier()
 	select_astar_spot.make_path()
@@ -171,11 +172,8 @@ def main(win, width):
 					print("qlearning_select %s" % qlearning_select)
 					print("astar_select %s" % astar_select)
 					if qlearning_select:
-						qlearning = Qlearning(grid)
 						get_shortest_path = qlearning.ql(end)
 						shortest_path = get_shortest_path(start.row, start.col)
-						print(shortest_path)
-						draw_ql_path(lambda: draw(win, grid, ROWS, width), grid, shortest_path, win)
 					elif astar_select:
 						a_robot.algorithm(lambda: draw(win, grid, ROWS, width), start, end)
 
@@ -185,26 +183,10 @@ def main(win, width):
 					grid = make_grid(ROWS, width)
 
 		time.sleep(0.01)
+		qlearning.update()
 		a_robot.update()
 
 	pygame.quit()
-
-def draw_ql_path(draw, grid, shortest_path, win):
-	last = None
-	for i in range(len(shortest_path)):
-		if i == 0:
-			continue
-		point = shortest_path[i]
-		if last and i > 1:
-			last.reset()
-			spot.draw(win)
-		row = point[0]
-		col = point[1]
-		spot = grid[row][col]
-		spot.make_path()
-		spot.draw(win)
-		last = spot
-		draw()
 
 
 main(WIN, WIDTH)
