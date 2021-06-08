@@ -11,6 +11,7 @@ class Qlearning:
     def __init__(self, grid):
         self.grid = grid
         self.path = []
+        
 
 class Astar:
     def __init__(self, grid):
