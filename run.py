@@ -169,7 +169,7 @@ def main(win, width):
 							if spot.is_end() and spot.col < 20:
 								for robot in q_robots:
 									get_shortest_path = robot.ql(spot)
-									shortest_path = get_shortest_path(robot.spot.x, robot.spot.y)
+									shortest_path = get_shortest_path(robot.spot.row, robot.spot.col)
 								for robot in a_robots:
 									robot.algorithm(lambda: draw(win, grid, ROWS, width), spot, robot.spot)
 									#import pdb; pdb.set_trace()
