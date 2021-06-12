@@ -3,11 +3,59 @@ import math
 from queue import PriorityQueue
 import numpy as np
 import time
+import rospy
+from pathfinding.msg import Target
 
 WHITE = (255, 255, 255)
 
-def qlearning_train():
-    pass
+class AGV:
+    def __init__(self, grid, spot, algorithm):
+        self.grid = grid
+        self.spot = spot
+        self.algorithm = algorithm
+        self.busy = False
+
+        if self.algorithm == 'qlearning':
+            self.robot = Qlearning(self.grid, self.spot)
+        elif self.algorithm == 'astar':
+            self.robot = Astar(self.grid, self.spot)
+
+        rospy.Subscriber("target", Target, self.find_path)
+
+    def find_path(self, data):
+        target_spot = self.grid[data.x][data.y]
+        print(target_spot.row)
+        print(target_spot.col)
+        print(self.spot.row)
+        print(self.spot.col)
+
+        if self.busy:
+            return
+
+        self.busy = True
+
+        if self.algorithm == 'qlearning':
+            print('solving a star')
+            get_shortest_path = self.robot.ql(target_spot)
+            shortest_path = get_shortest_path(self.robot.spot.row, self.robot.spot.col)
+            if len(shortest_path) == 0:
+                self.busy = False
+        elif self.algorithm == 'astar':
+            print('solving a star')
+            self.robot.algorithm(target_spot, self.robot.spot)
+
+        if not self.busy:
+            robot.path = []
+
+    def update(self):
+        if self.robot:
+            self.robot.update()
+            self.spot = self.robot.spot
+
+    def bail(self):
+        self.busy = False
+        robot.path = []
+
 
 class Qlearning:
     def __init__(self, grid, spot):
@@ -220,7 +268,7 @@ class Astar:
             last = current
 
 
-    def algorithm(self, draw, start, end):
+    def algorithm(self, start, end):
         count = 0
         open_set = PriorityQueue()
         open_set.put((0, count, start))
@@ -241,7 +289,7 @@ class Astar:
             open_set_hash.remove(current)
 
             if current == end:
-                #import pdb; pdb.set_trace()
+                import pdb; pdb.set_trace()
                 self.reconstruct_path(came_from, end)
                 end.reset()
                 return True
@@ -258,8 +306,6 @@ class Astar:
                         open_set.put((f_score[neighbor], count, neighbor))
                         open_set_hash.add(neighbor)
                         # neighbor.make_open()
-
-            draw()
 
             if current != start:
                 pass
